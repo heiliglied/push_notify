@@ -3,6 +3,7 @@
 
 ## 사용 라이브러리.
 - Go_router
+- riverpod
 
 ## 디렉토리 관리.
 0. routes 파일.
