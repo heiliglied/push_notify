@@ -11,6 +11,7 @@ part 'Database.g.dart';
 
 @DriftDatabase(
   tables: [PushNoti],
+  daos: [PushNotiDao],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
@@ -25,9 +26,6 @@ class AppDb extends _$AppDb {
           await m.createAll();
         },
       );
-
-  // PushNotiDao 인스턴스 생성.
-  late final PushNotiDao pushNotiDao = PushNotiDao(pushNoti);
 }
 
 LazyDatabase _openConnection() {
