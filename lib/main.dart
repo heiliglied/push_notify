@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:push_notify/ui/router/PushNotifyRouter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,9 +12,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      // initialRoute: Routes.mainPage,
-      // routes: Routes.routes,
+    return MaterialApp.router(
+      routerConfig: router,
       // navigatorObservers: [AppNavObserver()],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
