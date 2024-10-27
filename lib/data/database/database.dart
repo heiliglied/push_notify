@@ -4,10 +4,15 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:push_notify/data/database/migrations/notification.dart';
+import 'package:push_notify/data/database/daos/notidao.dart';
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Notification])
-
+@DriftDatabase(
+    tables: [Notification],
+    daos: [
+      NotificationDao
+    ]
+)
 class Database extends _$Database {
   // we tell the database where to store the data with this constructor
   Database() : super(_openConnection());
@@ -15,7 +20,6 @@ class Database extends _$Database {
   // Migrations are covered later in the documentation.
   @override
   int get schemaVersion => 1;
-
 }
 
 LazyDatabase _openConnection() {
