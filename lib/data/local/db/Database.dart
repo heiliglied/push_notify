@@ -4,14 +4,16 @@ import 'package:path/path.dart' as p;
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dao/PushNotiDao.dart';
+import 'dao/PushNotiStatusDao.dart';
+import 'dao/PushStatusDao.dart';
 import 'entity/PushNoti.dart';
+import 'entity/PushStatus.dart';
 
 part 'Database.g.dart';
 
 @DriftDatabase(
-  tables: [PushNoti],
-  daos: [PushNotiDao],
+  tables: [PushNoti, PushStatus],
+  daos: [PushNotiStatusDao, PushStatusDao],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());

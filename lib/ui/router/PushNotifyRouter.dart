@@ -11,4 +11,4 @@ final GoRouter router = GoRouter(
       }
     ),
   ]
-)
+);

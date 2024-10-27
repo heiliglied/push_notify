@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:push_notify/data/local/db/Database.dart';
 import 'package:push_notify/ui/common/dialog/BaseDrawer.dart';
+import 'package:push_notify/ui/di/ViewModelModule.dart';
+import 'package:push_notify/ui/screen/MainViewModel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,7 +15,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final ScrollController _scrollController = ScrollController();
-  // final viewModel = locator<MainViewModel>();
+  final viewModel = locator<MainViewModel>();
 
   @override
   void initState() {
@@ -52,7 +55,7 @@ class _MainScreenState extends State<MainScreen> {
         });
   }
 
-  Widget _buildListView(List<NotiData> notiList) {
+  Widget _buildListView(List<PushNotiData> notiList) {
     return ListView.builder(
         shrinkWrap: true,
         controller: _scrollController,
@@ -75,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
         itemCount: notiList.length);
   }
 
-  Future showBottomSheet(NotiData item) {
+  Future showBottomSheet(PushNotiData item) {
     return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -231,11 +234,11 @@ class _MainScreenState extends State<MainScreen> {
               margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              child: StreamBuilder<List<NotiData>>(
+              child: StreamBuilder<List<PushNotiData>>(
                 stream: viewModel.notiDataStream,
                 builder: (context, snapshot) {
-                  final List<NotiData> data =
-                      snapshot.data?.cast<NotiData>() ?? [];
+                  final List<PushNotiData> data =
+                      snapshot.data?.cast<PushNotiData>() ?? [];
                   return Column(
                     children: [
                       Expanded(child: _buildContent(context, data)),
