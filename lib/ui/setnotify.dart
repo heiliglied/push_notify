@@ -1,21 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
+import 'package:push_notify/data/database/database.dart';
+import 'package:drift/drift.dart' hide Column;
+import 'package:push_notify/data/database/daos/notidao.dart';
 
-class SetNotify extends StatefulWidget {
+class SetNotify extends ConsumerStatefulWidget
+{
   final String title;
   final int id;
 
   const SetNotify({Key? key, this.title = '', this.id = 0}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _SetNotify();
+  ConsumerState<SetNotify> createState() => _SetNotify();
 }
 
-class _SetNotify extends State<SetNotify> {
+class _SetNotify extends ConsumerState<SetNotify> {
   bool isInit = true;
   String setType = 'insert';
   DateTime alertDate = DateTime.now();
@@ -216,7 +221,49 @@ class _SetNotify extends State<SetNotify> {
                                   );
 
                                   if(setType == 'insert') {
-                                    //insertNoti()
+                                    final notiDao = ref.watch(notiDaoProvider);
+                                    notiDao.insertNoti(NotificationCompanion(
+                                        date: Value(selecteDate),
+                                        title: Value(alertName.text),
+                                        contents: Value(alertContents.text),
+                                        status: const Value(false)
+                                    )).then((result) => {
+                                      UniDialog.showToast("등록 되었습니다.", 'short'),
+                                      resetInput()
+                                    }).onError((error, stackTrace) => {
+                                      print(error),
+                                      if(error.toString().contains("SqliteException(2067)")) {
+                                        UniDialog.showToast("이미 등록된 날짜입니다.", 'short'),
+                                      } else {
+                                        UniDialog.showToast("등록에 실패했습니다.", 'short'),
+                                      }
+                                    });
+                                    //notiDao.insertNoti(notiCompanion);
+                                    // ref.watch(iner);
+                                    /*
+                                    insertNotiData(NotificationCompanion(
+                                        date: Value(selecteDate),
+                                        title: Value(alertName.text),
+                                        contents: Value(alertContents.text),
+                                        status: const Value(false)
+                                    )).then((result) =>
+                                    {
+                                      UniDialog.showToast("등록 되었습니다.", 'short'),
+                                      resetInput()
+                                    }).onError((error, stackTrace) =>
+                                    {
+                                      if(error.toString().contains(
+                                          "SqliteException(2067)")){
+                                        UniDialog.showToast(
+                                            "이미 등록된 날짜입니다.", 'short'),
+                                      } else
+                                        {
+                                          UniDialog.showToast(
+                                              "등록에 실패했습니다.", 'short'),
+                                        }
+                                    });
+
+                                     */
                                   }
                                   /*
                                   if (setType == 'insert') {
@@ -284,4 +331,5 @@ class _SetNotify extends State<SetNotify> {
     alertName.text = '';
     alertContents.text = '';
   }
+
 }

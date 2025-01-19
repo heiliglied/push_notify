@@ -2,9 +2,11 @@
 일정 푸시 알림이
 
 ## 사용 라이브러리.
+- path
 - Go_router
 - drift
 - riverpod
+- flutter_riverpod
 - fluttertoast
 - flutter_localizations
 
@@ -16,11 +18,14 @@ lib/data - 데이터 바인딩 및 모델, 모델 뷰 등 실질적으로 데이
 lib/data/database - 데이터베이스 관련 설정. drift 설정 파일들 위치.  
 lib/data/database/migrations - drift에서 관리하는 table migration 파일들.  
 lib/extra - 커스텀한 라이브러리가 위치하는 폴더.  
+lib/data/providers - riverpod provider 변수 선언된 폴더.  
 
 ## riverpod 설정.  
 - 코드 생성기 실행.  
   flutter pub run build_runner watch 
 
+## riverpod 위젯 설정.
+- statelessWidget이 아닌 ConsumerWidget으로 대체해서 사용해야 ref 사용이 가능.
 
 ### 주의사항.  
  ※ flutter_localizations 패키지는   

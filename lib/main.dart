@@ -11,12 +11,13 @@ void main() {
   );
 }
 
-class Main extends StatelessWidget {
+class Main extends ConsumerWidget {
   const Main({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: '일정 푸시 알림이',
       routerConfig: router,

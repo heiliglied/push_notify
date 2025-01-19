@@ -8,6 +8,33 @@ part 'notidao.g.dart';
 class NotificationDao extends DatabaseAccessor<Database> with _$NotificationDaoMixin{
   NotificationDao(Database db): super(db);
 
-  @riverpod
   Future<int> insertNoti(NotificationCompanion notiCompanion) => into(notification).insert(notiCompanion);
+/*
+  Stream<List<NotificationData>>? getNotNotifiedNotiPaginationStream(int page, int limit) => (select(notification)
+    ..where((t) => t.status.equals(false) & t.date.isBiggerThanValue(DateTime.now()))..limit(limit, offset: page * limit)..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.asc)])
+  ).watch();
+*/
+
+  Stream<List<NotificationData>>? getNotNotifiedNotiPaginationStream(int page, int limit) {
+    final query = (select(notification)
+      ..where((t) => t.status.equals(false) & t.date.isBiggerThanValue(DateTime.now()))
+      ..limit(limit, offset: page * limit)
+      ..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.asc)]));
+
+    return query.watch();
+  }
+
+  Future<List<NotificationData>>? getNotificationList(int page, int limit) {
+    final query = (select(notification)
+      ..where((t) => t.status.equals(false) & t.date.isBiggerThanValue(DateTime.now()))
+      ..limit(limit, offset: page * limit)
+      ..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.asc)]));
+
+    return query.get();
+  }
 }
+
+final notiDaoProvider = Provider<NotificationDao>((ref) {
+  final notificationProvider = ref.watch(databaseProvider);
+  return NotificationDao(notificationProvider);
+});
