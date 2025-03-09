@@ -9,15 +9,17 @@ import 'package:push_notify/data/database/database.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:push_notify/data/database/daos/notidao.dart';
 
-class SetNotify extends ConsumerStatefulWidget
+class UpdateNotify extends ConsumerStatefulWidget
 {
-  const SetNotify({Key? key}) : super(key: key);
+  final String title;
+  final String id;
+  const UpdateNotify({Key? key, this.title = '', this.id = ''}) : super(key: key);
 
   @override
-  ConsumerState<SetNotify> createState() => _SetNotify();
+  ConsumerState<UpdateNotify> createState() => _UpdateNotify();
 }
 
-class _SetNotify extends ConsumerState<SetNotify> {
+class _UpdateNotify extends ConsumerState<UpdateNotify> {
   bool isInit = true;
   DateTime alertDate = DateTime.now();
   TimeOfDay alertTime = TimeOfDay.now();
@@ -28,6 +30,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
 
   @override
   void initState() {
+    //widget.id;
     super.initState();
   }
 
@@ -38,6 +41,18 @@ class _SetNotify extends ConsumerState<SetNotify> {
 
   @override
   Widget build(BuildContext context) {
+    final notiId = int.parse(widget.id);
+    final notiDao = ref.watch(notiDaoProvider);
+    notiDao.getNotification(notiId).then((value) => {
+      setModifyData(
+          {
+            "date": value?.date,
+            "title": value?.title,
+            "contents": value?.contents,
+          }
+      ),
+    });
+
     double widgetWidth = MediaQuery
         .of(context)
         .size
@@ -49,7 +64,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("알림 작성"),
+        title: Text(widget.title),
         leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -72,7 +87,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
                               height: 10,
                             ),
                             Text(
-                              '신규 알림 작성',
+                              widget.title == '' ? '신규 메시지 작성' : widget.title,
                               textAlign: TextAlign.center,
                               style: const TextStyle(fontSize: 24.0),
                             ),
@@ -187,7 +202,8 @@ class _SetNotify extends ConsumerState<SetNotify> {
                               padding: const EdgeInsets.only(
                                   left: 10, right: 10),
                               child: ElevatedButton(
-                                child: const Text("등록", style: TextStyle(fontSize: 20.0, color: Colors.limeAccent)),
+                                child: const Text("수정", style: TextStyle(
+                                    fontSize: 20.0, color: Colors.limeAccent)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.lightBlueAccent,
                                 ),
@@ -207,6 +223,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                         "알림을 입력해 주세요.", 'short');
                                     return;
                                   }
+
                                   DateTime selecteDate = DateTime(
                                       alertDate.year,
                                       alertDate.month,
@@ -214,21 +231,27 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                       alertTime.hour,
                                       alertTime.minute
                                   );
-                                  final notiDao = ref.watch(notiDaoProvider);
-                                  notiDao.insertNoti(NotificationCompanion(
+
+                                  notiDao.updateNoti(
+                                      notiId, NotificationCompanion(
                                       date: Value(selecteDate),
                                       title: Value(alertName.text),
                                       contents: Value(alertContents.text),
                                       status: const Value(false)
-                                  )).then((result) => {
-                                    UniDialog.showToast("등록 되었습니다.", 'short'),
-                                    resetInput()
-                                  }).onError((error, stackTrace) => {
-                                    if(error.toString().contains("SqliteException(2067)")) {
-                                      UniDialog.showToast("이미 등록된 날짜입니다.", 'short'),
-                                    } else {
-                                      UniDialog.showToast("등록에 실패했습니다.", 'short'),
-                                    }
+                                  )).then((result) =>
+                                  {
+                                    UniDialog.showToast("수정 되었습니다.", 'short'),
+                                  }).onError((error, stackTrace) =>
+                                  {
+                                    if(error.toString().contains(
+                                        "SqliteException(2067)")){
+                                      UniDialog.showToast(
+                                          "이미 등록된 날짜입니다.", 'short'),
+                                    } else
+                                      {
+                                        UniDialog.showToast(
+                                            "수정에 실패했습니다.", 'short'),
+                                      }
                                   });
                                 },
                               ),
@@ -241,6 +264,18 @@ class _SetNotify extends ConsumerState<SetNotify> {
           ]
       ),
     );
+  }
+
+  void setModifyData(Map notiData) {
+    String dateString = notiData['date'].toString();
+    List timeSplit = dateString.split(' ');
+    List timeList = timeSplit[1].split(':');
+    alertTime = TimeOfDay(hour: int.parse(timeList[0]), minute: int.parse(timeList[1]));
+    alertDate = DateTime.parse(dateString);
+    dateinput.text = timeSplit[0];
+    timeinput.text = timeList[0] + ':' + timeList[1];
+    alertName.text = notiData['title'];
+    alertContents.text = notiData['contents'];
   }
 
   void resetInput() {

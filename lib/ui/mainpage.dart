@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/ui/components/emptypage.dart';
+import 'package:push_notify/ui/components/detailbottomsheet.dart';
 import 'package:push_notify/data/database/daos/notidao.dart';
 import 'package:push_notify/providers/notificationStateNotifier.dart';
 import 'package:intl/intl.dart';
@@ -19,12 +21,21 @@ class _MainPage extends ConsumerState<MainPage> {
   int page = 0;
   int limit = 8;
   bool loading = false, allLoaded = false;
+  final List<NotificationData> list = [];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      //ref.read(notificationListProvider.notifier).fetchNotifications(page, limit);
+    super.initState();
+    fatchList();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        setState(() {
+          page++;
+          fatchList();
+        });
+      }
     });
   }
 
@@ -39,14 +50,72 @@ class _MainPage extends ConsumerState<MainPage> {
     super.dispose();
   }
 
+  fatchList() async {
+    if(allLoaded) {
+      return;
+    }
+
+    setState(() {
+      loading = true;
+    });
+
+    final notiDao = ref.read(notiDaoProvider);
+    await notiDao.getNotificationList(page, limit)?.then((value) =>
+    {
+      value.forEach((element) {
+        list.add(element);
+      })
+    });
+
+    setState(() {
+      loading = false;
+      allLoaded = list.isEmpty;
+    });
+  }
+
+  Widget addlistView(List<dynamic> notiList) {
+    return ListView.builder(
+        shrinkWrap: true,
+        controller: _scrollController,
+        itemBuilder: (BuildContext context, int index) {
+          DateTime date = notiList[index].date;
+          String format = DateFormat('yyyy-MM-dd HH:mm').format(date);
+          return GestureDetector(
+              onTap: () async {
+                DetailBottomSheet()
+                  ..showBottomSheet(context, notiList[index], index)
+                      .then((value) {
+                    if (mounted) {
+                      setState(() {
+                        if (value != null) {
+                          notiList.removeAt(value);
+                        }
+                      });
+                    }
+                  });
+              },
+              child: Card(
+                  child: SizedBox(
+                      height: 80,
+                      child: ListTile(
+                        /*
+                        leading: const Image(
+                            image: AssetImage('assets/images/timetable.png')),
+                        */
+                        title: Text("지정시간 : $format"),
+                        subtitle: Text("알림 : ${notiList[index].title}"),
+                        trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                      )
+                  )
+              )
+          );
+        },
+        itemCount: notiList.length
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    //final notiDao = ref.watch(notiDaoProvider);
-    //final list = [];
-
-    final list = ref.watch(notificationListProvider);
-
-    print(list);
 
     return PopScope(
         canPop: true,
@@ -58,7 +127,7 @@ class _MainPage extends ConsumerState<MainPage> {
             drawer: const BaseDrawer(),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: () => {
-                context.pushNamed('setting', extra: {'title': '', 'id': 0})
+                context.pushNamed('setting')
                 //Navigator.pushNamed(context, 'set')
               },
               label: const Text("작성하기"),
@@ -71,7 +140,7 @@ class _MainPage extends ConsumerState<MainPage> {
                     margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    child: list.isEmpty ? emptyPage : emptyPage, //addlistView(list),
+                    child: list.isEmpty ? emptyPage : addlistView(list),
                   ),
                   flex: 9,
                 )

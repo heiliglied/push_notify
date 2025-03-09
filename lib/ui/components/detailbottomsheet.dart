@@ -2,8 +2,7 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:push_notify/database/database.dart';
-import 'package:provider/provider.dart';
+import 'package:push_notify/data/database/database.dart';
 
 class DetailBottomSheet {
   Future showBottomSheet(BuildContext context, NotificationData item, int index) {
@@ -110,10 +109,7 @@ class DetailBottomSheet {
                                     backgroundColor: Colors.lightBlueAccent
                                 ),
                                 onPressed: () {
-                                  Navigator.pop(context);
-                                  context.push('/set', extra: {"title": "알림 수정", "id": item.id});
-                                  //context.goNamed('set', queryParameters: {"title": "알림 수정", "id": item.id});
-                                  //Navigator.pushNamed(context, Routes.set, arguments: {"title": "알림 수정", "id": item.id});
+                                  context.go('/setting/' + item.id.toString(), extra: {"title": "알림 수정"});
                                 }
                             ),
                             Container(
@@ -125,9 +121,11 @@ class DetailBottomSheet {
                                     backgroundColor: Colors.black12
                                 ),
                                 onPressed: () async {
+                                  /*
                                   updateNoti(context, item.id, const NotificationCompanion(
                                     status: Value(true),
                                   ));
+                                   */
                                   Navigator.pop(context, index);
                                 }
                             ),
@@ -140,7 +138,7 @@ class DetailBottomSheet {
                                     backgroundColor: Colors.redAccent
                                 ),
                                 onPressed: () async {
-                                  deleteNoti(context, item.id);
+                                  //deleteNoti(context, item.id);
                                   Navigator.pop(context, index);
                                 }
                             )
@@ -154,7 +152,7 @@ class DetailBottomSheet {
       },
     );
   }
-
+/*
   Future<int> updateNoti(BuildContext context, int id, NotificationCompanion noti) async {
     return Provider.of<Database>(context, listen: false).updateNoti(id, noti);
   }
@@ -162,4 +160,5 @@ class DetailBottomSheet {
   Future<int> deleteNoti(BuildContext context, int id) async {
     return Provider.of<Database>(context, listen: false).deleteNoti(id);
   }
+ */
 }
