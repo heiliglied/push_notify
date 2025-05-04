@@ -1,11 +1,15 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/data/database/database.dart';
+import 'package:push_notify/extra/UniDialog.dart';
+import 'package:push_notify/providers/notificationRepositoryProvider.dart';
 
 class DetailBottomSheet {
-  Future showBottomSheet(BuildContext context, NotificationData item, int index) {
+  Future showBottomSheet(BuildContext context, NotificationData item, int index, WidgetRef ref) {
+    final notification = ref.watch(notificationRepositoryProvider);
     return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -13,7 +17,7 @@ class DetailBottomSheet {
             height: MediaQuery
                 .of(context)
                 .size
-                .height * 0.4, // 모달 높이 크기
+                .height * 0.6, // 모달 높이 크기
             decoration: const BoxDecoration(
               color: Colors.white, // 모달 배경색
               borderRadius: BorderRadius.only(
@@ -48,7 +52,9 @@ class DetailBottomSheet {
                       ),
                     ),
                     Container(
-                      height: 40,
+                      constraints: BoxConstraints(
+                        minHeight: 40, // 최소 높이 설정
+                      ),
                       decoration: const BoxDecoration(
                           border: Border(
                               bottom: BorderSide(
@@ -65,6 +71,64 @@ class DetailBottomSheet {
                           ),
                           Expanded(
                               child: Text(item.title, style: const TextStyle(fontSize: 18))
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      constraints: BoxConstraints(
+                        minHeight: 40, // 최소 높이 설정
+                      ),
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(
+                                color: Colors.lightBlue,
+                                width: 2,
+                              )
+                          )
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 100,
+                            child: Text("알림음", style: TextStyle(fontSize: 18)),
+                          ),
+                          Expanded(
+                              child: Text(item.sound.split('/').last, style: const TextStyle(fontSize: 18))
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      constraints: BoxConstraints(
+                        minHeight: 40, // 최소 높이 설정
+                      ),
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(
+                                color: Colors.lightBlue,
+                                width: 2,
+                              )
+                          )
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(
+                            width: 100,
+                            child: Text("알람사용", style: TextStyle(fontSize: 18)),
+                          ),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start, // 가로 방향으로 왼쪽 정렬
+                              children: [
+                                Switch(
+                                  value: item.alarm,
+                                  onChanged: (bool value) {
+                                    // 원하는 동작
+                                  },
+                                ),
+                              ],
+                            ),
                           )
                         ],
                       ),
@@ -120,13 +184,29 @@ class DetailBottomSheet {
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black12
                                 ),
-                                onPressed: () async {
+                                onPressed: () {
+                                  UniDialog.callDialog(
+                                      context,
+                                      title: "경고",
+                                      content: "알림을 끄시겠습니까?",
+                                      positiveText: "예",
+                                      positive: () {
+                                        notification.updateNotification(item.id,
+                                          {
+                                            'alarm': false,
+                                            'status': false,
+                                          }
+                                        );
+                                        Navigator.pop(context, index);
+                                      },
+                                      negativeText: "아니오",
+                                  );
                                   /*
                                   updateNoti(context, item.id, const NotificationCompanion(
-                                    status: Value(true),
+                                    status: Value(false),
                                   ));
                                    */
-                                  Navigator.pop(context, index);
+                                  //Navigator.pop(context, index);
                                 }
                             ),
                             Container(
@@ -139,7 +219,7 @@ class DetailBottomSheet {
                                 ),
                                 onPressed: () async {
                                   //deleteNoti(context, item.id);
-                                  Navigator.pop(context, index);
+                                  //Navigator.pop(context, index);
                                 }
                             )
                           ],

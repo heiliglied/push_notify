@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -5,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
-import 'package:push_notify/data/database/database.dart';
 import 'package:drift/drift.dart' hide Column;
-import 'package:push_notify/data/database/daos/notidao.dart';
+import 'package:push_notify/providers/notificationRepositoryProvider.dart';
+import 'package:file_picker/file_picker.dart';
 
 class SetNotify extends ConsumerStatefulWidget
 {
@@ -25,6 +27,9 @@ class _SetNotify extends ConsumerState<SetNotify> {
   TextEditingController timeinput = TextEditingController();
   TextEditingController alertName = TextEditingController();
   TextEditingController alertContents = TextEditingController();
+  TextEditingController fileName = TextEditingController();
+  bool alert = false;
+  String filePath = '';
 
   @override
   void initState() {
@@ -157,6 +162,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               child: TextField(
+
                                 controller: alertName,
                                 decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -175,6 +181,43 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                     border: OutlineInputBorder(),
                                     labelText: '알림 내용'
                                 ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("알림 사용여부 : ", style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                  ),
+                                  Switch(
+                                    value: alert,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        alert = value;
+                                      });
+                                    }
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: TextField(
+                                controller: fileName,
+                                readOnly: true,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: '파일 경로'
+                                ),
+                                onTap: () {
+                                  getFilePath();
+                                },
                               ),
                             ),
                             const SizedBox(
@@ -214,15 +257,24 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                       alertTime.hour,
                                       alertTime.minute
                                   );
-                                  final notiDao = ref.watch(notiDaoProvider);
-                                  notiDao.insertNoti(NotificationCompanion(
-                                      date: Value(selecteDate),
-                                      title: Value(alertName.text),
-                                      contents: Value(alertContents.text),
-                                      status: const Value(false)
-                                  )).then((result) => {
-                                    UniDialog.showToast("등록 되었습니다.", 'short'),
-                                    resetInput()
+
+                                  final notification = ref.watch(notificationRepositoryProvider);
+                                  notification.addNotification(
+                                      {
+                                        'date': selecteDate,
+                                        'title': alertName.text,
+                                        'contents': alertContents.text,
+                                        'sound': filePath,
+                                        'alarm': alert,
+                                        'status': true,
+                                      }
+                                  ).then((result) => {
+                                    if (result != null) {
+                                      UniDialog.showToast("등록 되었습니다.", 'short'),
+                                      resetInput(),
+                                    } else {
+                                      UniDialog.showToast("등록에 실패했습니다.", 'short'),
+                                    }
                                   }).onError((error, stackTrace) => {
                                     if(error.toString().contains("SqliteException(2067)")) {
                                       UniDialog.showToast("이미 등록된 날짜입니다.", 'short'),
@@ -230,6 +282,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                       UniDialog.showToast("등록에 실패했습니다.", 'short'),
                                     }
                                   });
+
                                 },
                               ),
                             )
@@ -248,6 +301,18 @@ class _SetNotify extends ConsumerState<SetNotify> {
     timeinput.text = '';
     alertName.text = '';
     alertContents.text = '';
+    fileName.text = '';
   }
 
+  void getFilePath() async {
+    String path = '';
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if(result != null) {
+      File file = File(result.files.single.path!);
+      setState(() {
+        filePath = file.path;
+        fileName.text = file.path;
+      });
+    }
+  }
 }

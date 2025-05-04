@@ -5,8 +5,7 @@ import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/ui/components/emptypage.dart';
 import 'package:push_notify/ui/components/detailbottomsheet.dart';
-import 'package:push_notify/data/database/daos/notidao.dart';
-import 'package:push_notify/providers/notificationStateNotifier.dart';
+import 'package:push_notify/data/database/daos/NotificationDao.dart';
 import 'package:intl/intl.dart';
 
 class MainPage extends ConsumerStatefulWidget {
@@ -26,7 +25,6 @@ class _MainPage extends ConsumerState<MainPage> {
 
   @override
   void initState() {
-    super.initState();
     super.initState();
     fatchList();
     _scrollController.addListener(() {
@@ -83,7 +81,7 @@ class _MainPage extends ConsumerState<MainPage> {
           return GestureDetector(
               onTap: () async {
                 DetailBottomSheet()
-                  ..showBottomSheet(context, notiList[index], index)
+                  ..showBottomSheet(context, notiList[index], index, ref)
                       .then((value) {
                     if (mounted) {
                       setState(() {

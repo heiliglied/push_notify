@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'notidao.dart';
+part of 'NotificationDao.dart';
 
 // ignore_for_file: type=lint
 mixin _$NotificationDaoMixin on DatabaseAccessor<Database> {

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +10,10 @@ import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
 import 'package:push_notify/data/database/database.dart';
 import 'package:drift/drift.dart' hide Column;
-import 'package:push_notify/data/database/daos/notidao.dart';
+import 'package:push_notify/providers/notificationRepositoryProvider.dart';
+//import 'package:push_notify/data/database/daos/NotificationDao.dart';
+
+final dateinput = StateProvider<TextEditingController>((ref) => TextEditingController());
 
 class UpdateNotify extends ConsumerStatefulWidget
 {
@@ -27,11 +33,26 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
   TextEditingController timeinput = TextEditingController();
   TextEditingController alertName = TextEditingController();
   TextEditingController alertContents = TextEditingController();
+  TextEditingController fileName = TextEditingController();
+  bool alert = false;
+  String filePath = '';
+
+  late final notification = ref.read(notificationRepositoryProvider);
 
   @override
   void initState() {
-    //widget.id;
     super.initState();
+    notification.getNotification(int.parse(widget.id)).then((value) => {
+      setModifyData(
+          {
+            "date": value?.date,
+            "title": value?.title,
+            "contents": value?.contents,
+            "sound": value?.sound,
+            "alarm": value?.alarm,
+          }
+      ),
+    });
   }
 
   @override
@@ -42,16 +63,6 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
   @override
   Widget build(BuildContext context) {
     final notiId = int.parse(widget.id);
-    final notiDao = ref.watch(notiDaoProvider);
-    notiDao.getNotification(notiId).then((value) => {
-      setModifyData(
-          {
-            "date": value?.date,
-            "title": value?.title,
-            "contents": value?.contents,
-          }
-      ),
-    });
 
     double widgetWidth = MediaQuery
         .of(context)
@@ -196,6 +207,43 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
                               height: 10,
                             ),
                             Container(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("알림 사용여부 : ", style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                  ),
+                                  Switch(
+                                      value: alert,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          alert = value;
+                                        });
+                                      }
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: TextField(
+                                controller: fileName,
+                                readOnly: true,
+                                decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: '파일 경로'
+                                ),
+                                onTap: () {
+                                  getFilePath();
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Container(
                               width: widgetWidth,
                               height: widgetHeight * 0.15 -
                                   AppBar().preferredSize.height,
@@ -232,13 +280,16 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
                                       alertTime.minute
                                   );
 
-                                  notiDao.updateNoti(
-                                      notiId, NotificationCompanion(
-                                      date: Value(selecteDate),
-                                      title: Value(alertName.text),
-                                      contents: Value(alertContents.text),
-                                      status: const Value(false)
-                                  )).then((result) =>
+                                  notification.updateNotification(
+                                      notiId,
+                                      {
+                                        'date': selecteDate,
+                                        'title': alertName.text,
+                                        'contents': alertContents.text,
+                                        'sound': filePath,
+                                        'alarm': alert,
+                                      }
+                                  ).then((result) =>
                                   {
                                     UniDialog.showToast("수정 되었습니다.", 'short'),
                                   }).onError((error, stackTrace) =>
@@ -267,6 +318,7 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
   }
 
   void setModifyData(Map notiData) {
+    print(notiData);
     String dateString = notiData['date'].toString();
     List timeSplit = dateString.split(' ');
     List timeList = timeSplit[1].split(':');
@@ -276,6 +328,21 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
     timeinput.text = timeList[0] + ':' + timeList[1];
     alertName.text = notiData['title'];
     alertContents.text = notiData['contents'];
+    fileName.text = notiData['sound'];
+    //ref.read(alertProvider.notifier).state = notiData['alarm'];
+    alert = notiData['alarm'];
+  }
+
+  void getFilePath() async {
+    String path = '';
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if(result != null) {
+      File file = File(result.files.single.path!);
+      setState(() {
+        filePath = file.path;
+        fileName.text = file.path;
+      });
+    }
   }
 
   void resetInput() {

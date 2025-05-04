@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/data/database/migrations/notification.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-part 'notidao.g.dart';
+part 'NotificationDao.g.dart';
 
 @DriftAccessor(tables: [Notification])
 class NotificationDao extends DatabaseAccessor<Database> with _$NotificationDaoMixin{
