@@ -51,8 +51,15 @@ class UniDialog {
               title: Text(title),
               content: Text(content),
               actions: [
-                TextButton(onPressed: () => { positive ?? _closeApp(context) }, child: Text(positiveText)),
-                if(negativeText != '' || negativeText != null) TextButton(onPressed: () => { negative ?? _dismiss(context) }, child: Text(negativeText ?? '')),
+                TextButton(
+                  onPressed: positive ?? () => _closeApp(context),
+                  child: Text(positiveText),
+                ),
+                if (negativeText != null && negativeText.isNotEmpty)
+                  TextButton(
+                    onPressed: negative ?? () => _dismiss(context),
+                    child: Text(negativeText),
+                  ),
               ],
             )
     );

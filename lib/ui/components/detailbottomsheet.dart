@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/extra/UniDialog.dart';
-import 'package:push_notify/providers/notificationRepositoryProvider.dart';
+import 'package:push_notify/data/database/provider/notificationProvider.dart';
 
 class DetailBottomSheet {
   Future showBottomSheet(BuildContext context, NotificationData item, int index, WidgetRef ref) {
-    final notification = ref.watch(notificationRepositoryProvider);
+    final notification = ref.read(notificationProvider);
     return showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -191,22 +191,17 @@ class DetailBottomSheet {
                                       content: "알림을 끄시겠습니까?",
                                       positiveText: "예",
                                       positive: () {
-                                        notification.updateNotification(item.id,
+                                        notification.updateStatus(item.id,
                                           {
                                             'alarm': false,
                                             'status': false,
                                           }
                                         );
+                                        Navigator.pop(context);
                                         Navigator.pop(context, index);
                                       },
                                       negativeText: "아니오",
                                   );
-                                  /*
-                                  updateNoti(context, item.id, const NotificationCompanion(
-                                    status: Value(false),
-                                  ));
-                                   */
-                                  //Navigator.pop(context, index);
                                 }
                             ),
                             Container(
@@ -218,8 +213,20 @@ class DetailBottomSheet {
                                     backgroundColor: Colors.redAccent
                                 ),
                                 onPressed: () async {
-                                  //deleteNoti(context, item.id);
-                                  //Navigator.pop(context, index);
+                                  UniDialog.callDialog(
+                                    context,
+                                    title: "경고",
+                                    content: "알림을 삭제하시겠습니까?",
+                                    positiveText: "예",
+                                    positive: () {
+                                      notification.deleteNotification(item.id);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context, index);
+                                    },
+                                    negativeText: "아니오",
+                                  );
+
+
                                 }
                             )
                           ],
@@ -232,13 +239,5 @@ class DetailBottomSheet {
       },
     );
   }
-/*
-  Future<int> updateNoti(BuildContext context, int id, NotificationCompanion noti) async {
-    return Provider.of<Database>(context, listen: false).updateNoti(id, noti);
-  }
 
-  Future<int> deleteNoti(BuildContext context, int id) async {
-    return Provider.of<Database>(context, listen: false).deleteNoti(id);
-  }
- */
 }

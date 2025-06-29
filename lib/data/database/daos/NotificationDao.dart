@@ -36,6 +36,23 @@ class NotificationDao extends DatabaseAccessor<Database> with _$NotificationDaoM
   }
 
   Future<int> updateNoti(int id, NotificationCompanion notiCompanion) => (update(notification) ..where((t) => t.id.equals(id))).write(notiCompanion);
+
+  Future<int> deleteNotification(int id) => (delete(notification)..where((t) => t.id.equals(id))).go();
+
+  Future<List<NotificationData>>? getAllNotification(int page, int limit, String search, DateTime? date) {
+    final query = (select(notification)
+      ..where((t) {
+        final textMatch = t.title.like('%$search%') | t.contents.like('%$search%');
+        // 날짜 필터가 있으면 함께 and로 묶고, 아니면 텍스트 필터만
+        return date != null
+            ? textMatch & t.date.equals(date)
+            : textMatch;
+      })
+      ..limit(limit, offset: page * limit)
+      ..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.asc)]));
+
+    return query.get();
+  }
 }
 
 final notiDaoProvider = Provider<NotificationDao>((ref) {

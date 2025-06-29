@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:push_notify/ui/mainpage.dart';
-import 'package:push_notify/ui/setnotify.dart';
-import 'package:push_notify/ui/updatenotify.dart';
+import 'package:push_notify/ui/notify/history/history.dart';
+import 'package:push_notify/ui/notify/setnotify.dart';
+import 'package:push_notify/ui/notify/updatenotify.dart';
 
 /*
 final GoRouter router = GoRouter(
@@ -29,6 +30,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: "/",
         name: "main",
         builder: (context, state) => MainPage(),
+      ),
+      GoRoute(
+        path: "/history",
+        name: "history",
+        builder: (context, state) => History(),
       ),
       GoRoute(
           path: "/setting",

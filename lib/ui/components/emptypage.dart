@@ -13,7 +13,7 @@ class EmptyPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("데이터가 존재하지 않습니다.", style: TextStyle(fontSize: 24),),
+            Text("내역을 찾을 수 없습니다.", style: TextStyle(fontSize: 24),),
           ],
         ),
       ),

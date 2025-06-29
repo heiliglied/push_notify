@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
 import 'package:drift/drift.dart' hide Column;
-import 'package:push_notify/providers/notificationRepositoryProvider.dart';
+import 'package:push_notify/data/database/provider/notificationProvider.dart';
 import 'package:file_picker/file_picker.dart';
 
 class SetNotify extends ConsumerStatefulWidget
@@ -28,7 +28,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
   TextEditingController alertName = TextEditingController();
   TextEditingController alertContents = TextEditingController();
   TextEditingController fileName = TextEditingController();
-  bool alert = false;
+  bool alert = true;
   String filePath = '';
 
   @override
@@ -258,7 +258,7 @@ class _SetNotify extends ConsumerState<SetNotify> {
                                       alertTime.minute
                                   );
 
-                                  final notification = ref.watch(notificationRepositoryProvider);
+                                  final notification = ref.watch(notificationProvider);
                                   notification.addNotification(
                                       {
                                         'date': selecteDate,

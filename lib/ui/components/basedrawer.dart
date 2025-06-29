@@ -36,7 +36,7 @@ class BaseDrawer extends StatelessWidget {
                     ListTile(
                       title: const Text('알림 내역'),
                       onTap: () {
-                        context.goNamed('calendar', queryParameters: {"title": "알림 내역"});
+                        context.goNamed('history', queryParameters: {"title": "알림 내역"});
                         //Navigator.pushNamed(context, Routes.calendar, arguments: {"title": "알림 내역"});
                       },
                     ),

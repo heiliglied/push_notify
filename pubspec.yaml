@@ -45,6 +45,7 @@ dependencies:
   fluttertoast: ^8.2.8
   sqlite3_flutter_libs: ^0.5.27
   file_picker: ^8.3.2
+  debounce_throttle: ^2.0.0
 
 dev_dependencies:
   flutter_test:

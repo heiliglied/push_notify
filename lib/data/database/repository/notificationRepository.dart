@@ -6,6 +6,7 @@ import 'package:push_notify/data/database/daos/NotificationDao.dart';
 import 'package:push_notify/data/database/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+@Riverpod(keepAlive: true)
 class Notificationrepository {
   final NotificationDao notificationDao;
   Notificationrepository(this.notificationDao);
@@ -47,7 +48,41 @@ class Notificationrepository {
     }
   }
 
+  Future<int?> updateStatus(int id, Map<String, dynamic> data) async {
+    try {
+      final notificationData = NotificationCompanion(
+        alarm: Value(data['alarm']),
+        status: Value(data['status'])
+      );
+      return notificationDao.updateNoti(id, notificationData);
+    } on SqliteException catch (e) {
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<NotificationData?> getNotification(int id) async {
     return notificationDao.getNotification(id);
+  }
+
+  Future<int?> deleteNotification(int id) async {
+    try {
+      return notificationDao.deleteNotification(id);
+    } on SqliteException catch (e) {
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<NotificationData>?> getAllNotification(int page, int limit, String search, DateTime? date) async {
+    try {
+      return notificationDao.getAllNotification(page, limit, search, date);
+    } on SqliteException catch (e) {
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 }

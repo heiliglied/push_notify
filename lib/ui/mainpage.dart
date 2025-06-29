@@ -26,6 +26,11 @@ class _MainPage extends ConsumerState<MainPage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     fatchList();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
@@ -38,13 +43,8 @@ class _MainPage extends ConsumerState<MainPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
   void dispose() {
-    //_scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -114,7 +114,6 @@ class _MainPage extends ConsumerState<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return PopScope(
         canPop: true,
         child: Scaffold(

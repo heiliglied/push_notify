@@ -8,10 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
-import 'package:push_notify/data/database/database.dart';
-import 'package:drift/drift.dart' hide Column;
-import 'package:push_notify/providers/notificationRepositoryProvider.dart';
-//import 'package:push_notify/data/database/daos/NotificationDao.dart';
+import 'package:push_notify/data/database/provider/notificationProvider.dart';
 
 final dateinput = StateProvider<TextEditingController>((ref) => TextEditingController());
 
@@ -37,7 +34,7 @@ class _UpdateNotify extends ConsumerState<UpdateNotify> {
   bool alert = false;
   String filePath = '';
 
-  late final notification = ref.read(notificationRepositoryProvider);
+  late final notification = ref.read(notificationProvider);
 
   @override
   void initState() {
