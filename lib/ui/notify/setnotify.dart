@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
 import 'package:drift/drift.dart' hide Column;
-import 'package:push_notify/data/database/provider/notificationProvider.dart';
+import 'package:push_notify/data/database/provider/NotificationProvider.dart';
 import 'package:file_picker/file_picker.dart';
 
 class SetNotify extends ConsumerStatefulWidget

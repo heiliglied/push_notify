@@ -1,13 +1,13 @@
 import 'package:push_notify/data/database/database.dart';
+import 'package:push_notify/ui/notify/history/historySearch.dart';
 
 class HistoryState {
+  final List<NotificationData> notifications;
   final int page;
   final int limit;
   final bool loading;
   final bool allLoaded;
-  final String search;
-  final List<NotificationData> notifications;
-  final DateTime? date;
+  final HistorySearch condition;
 
   const HistoryState({
     required this.notifications,
@@ -15,8 +15,7 @@ class HistoryState {
     this.limit = 8,
     this.loading = false,
     this.allLoaded = false,
-    this.search = "",
-    this.date,
+    this.condition = const HistorySearch()
   });
 
   HistoryState copyWith({
@@ -25,8 +24,7 @@ class HistoryState {
     int? limit,
     bool? loading,
     bool? allLoaded,
-    String? search,
-    DateTime? date,
+    HistorySearch? search,
   }) {
     return HistoryState(
       notifications: notifications ?? this.notifications,
@@ -34,8 +32,7 @@ class HistoryState {
       limit: limit ?? this.limit,
       loading: loading ?? this.loading,
       allLoaded: allLoaded ?? this.allLoaded,
-      search: search ?? this.search,
-      date: date ?? this.date,
+      condition: search ?? this.condition,
     );
   }
 }

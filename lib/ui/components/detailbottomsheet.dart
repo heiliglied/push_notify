@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/extra/UniDialog.dart';
-import 'package:push_notify/data/database/provider/notificationProvider.dart';
+import 'package:push_notify/data/database/provider/NotificationProvider.dart';
 
 class DetailBottomSheet {
   Future showBottomSheet(BuildContext context, NotificationData item, int index, WidgetRef ref) {

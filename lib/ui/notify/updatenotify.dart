@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/extra/UniDialog.dart';
-import 'package:push_notify/data/database/provider/notificationProvider.dart';
+import 'package:push_notify/data/database/provider/NotificationProvider.dart';
 
 final dateinput = StateProvider<TextEditingController>((ref) => TextEditingController());
 

@@ -4,7 +4,7 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:push_notify/data/database/migrations/notification.dart';
+import 'package:push_notify/data/database/migrations/Notification.dart';
 import 'package:push_notify/data/database/daos/NotificationDao.dart';
 part 'database.g.dart';
 

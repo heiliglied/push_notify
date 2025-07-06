@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:push_notify/data/database/provider/notificationProvider.dart';
+import 'package:push_notify/data/database/provider/NotificationProvider.dart';
 import 'package:push_notify/ui/notify/history/historyNotifier.dart';
 import 'package:push_notify/ui/notify/history/historyState.dart';
 

@@ -7,9 +7,9 @@ import 'package:push_notify/data/database/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 @Riverpod(keepAlive: true)
-class Notificationrepository {
+class NotificationRepository {
   final NotificationDao notificationDao;
-  Notificationrepository(this.notificationDao);
+  NotificationRepository(this.notificationDao);
 
   Future<int?> addNotification(Map<String, dynamic> data) async {
     final notificationData = NotificationCompanion(
@@ -76,9 +76,9 @@ class Notificationrepository {
     }
   }
 
-  Future<List<NotificationData>?> getAllNotification(int page, int limit, String search, DateTime? date) async {
+  Future<List<NotificationData>?> getAllNotification(int page, int limit, String search, DateTime? start_day, DateTime? end_day) async {
     try {
-      return notificationDao.getAllNotification(page, limit, search, date);
+      return notificationDao.getAllNotification(page, limit, search, start_day, end_day);
     } on SqliteException catch (e) {
       return null;
     } catch (e) {

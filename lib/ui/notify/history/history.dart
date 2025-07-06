@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:push_notify/data/database/database.dart';
 import 'package:push_notify/ui/components/basedrawer.dart';
 import 'package:push_notify/ui/components/emptypage.dart';
-import 'package:push_notify/data/database/daos/NotificationDao.dart';
 import 'package:push_notify/ui/components/detailbottomsheet.dart';
 import 'package:intl/intl.dart';
+import 'package:push_notify/ui/notify/history/historyPaginationProvider.dart';
+import 'package:push_notify/ui/notify/history/historyProvider.dart';
 
 class History extends ConsumerStatefulWidget {
   const History({Key? key}) : super(key: key);
@@ -16,19 +18,22 @@ class History extends ConsumerStatefulWidget {
 
 class _History extends ConsumerState<History> {
   Widget emptyPage = EmptyPage();
-
   final ScrollController _scrollController = ScrollController();
-  String search = "";
 
   @override
   void initState() {
     super.initState();
+    final pagination = ref.read(historyPaginationProvider);
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-        fatchList(); // 개선된 버전에서는 페이지 증가를 fatchList 내부에서 처리
+        pagination.fetchNextThrottled();
       }
     });
-    fatchList();
+
+    Future.microtask(() {
+      pagination.fetchNextThrottled();
+    });
   }
 
   @override
@@ -37,9 +42,7 @@ class _History extends ConsumerState<History> {
     super.dispose();
   }
 
-
-
-  Widget addlistView(List<dynamic> notiList) {
+  Widget addlistView(List<NotificationData> notiList) {
     return ListView.builder(
         shrinkWrap: true,
         controller: _scrollController,
@@ -71,6 +74,9 @@ class _History extends ConsumerState<History> {
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(historyProvider);
+    final notifications = state.notifications;
+
     return PopScope(
         canPop: true,
         child: Scaffold(
@@ -99,16 +105,22 @@ class _History extends ConsumerState<History> {
                       ),
                     ],
                     onSubmitted: (value) {
-                      search = value;
-                      page = 0;
-                      list.clear();
-                      allLoaded = false;
-                      fatchList();
+                      final notifier = ref.read(historyProvider.notifier);
+                      final pagination = ref.read(historyPaginationProvider);
+
+                      final newCondition = state.condition.copyWith(
+                        search: value,
+                        start_day: state.condition.start_day,
+                        end_day: state.condition.end_day,
+                      );
+
+                      notifier.reset(condition: newCondition);
+                      pagination.fetchNextThrottled();
                     },
                   ),
                 ),
                 Expanded(
-                  child: list.isEmpty
+                  child: notifications.isEmpty
                       ? Center(
                     child: Container(
                       margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
@@ -121,7 +133,7 @@ class _History extends ConsumerState<History> {
                     margin: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
-                    child: addlistView(list),
+                    child: addlistView(notifications), // ListView.builder를 직접 사용
                   ),
                 ),
               ],
